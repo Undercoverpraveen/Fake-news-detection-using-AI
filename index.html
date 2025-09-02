@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TruthGuard - Advanced Fake News Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --gray: #7f8c8d;
+            --gradient-start: #3498db;
+            --gradient-end: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: var(--accent);
+            animation: pulse 2s infinite;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 2rem;
+            position: relative;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 5px 0;
+        }
+        
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--accent);
+            transition: width 0.3s;
+        }
+        
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(52, 152, 219, 0.8)), url('https://images.unsplash.com/photo-1563986768609-322da13575f3?ixlib=rb-4.0.3') center/cover;
+            color: white;
+            margin-bottom: 2rem;
+            border-radius: 0 0 20px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.1" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,192C1248,192,1344,128,1392,96L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin: 0 auto 2rem;
+            max-width: 600px;
+            animation: fadeInUp 1.2s ease;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 1.4s ease;
+        }
+        
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover:before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.6);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid white;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.4);
+        }
+        
+        .analysis-section {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .analysis-section:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--gradient-start), var(--gradient-end));
+        }
+        
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+            position: relative;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--accent);
+        }
+        
+        .input-area {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .input-area textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .input-area textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+        }
+        
+        .input-options {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 1rem 0.5rem 0;
+        }
+        
+        .option input {
+            margin-right: 0.5rem;
+            accent-color: var(--secondary);
+        }
+        
+        .results {
+            display: none;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent);
+        }
+        
+        .accuracy {
+            margin: 1.5rem 0;
+        }
+        
+        .accuracy-meter {
+            height: 20px;
+            background: #eee;
+            border-radius: 10px;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .accuracy-fill {
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 1s ease-in-out, background-color 1s ease;
+            position: relative;
+        }
+        
+        .accuracy-fill:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(-45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent);
+            z-index: 1;
+            background-size: 20px 20px;
+            animation: move 1s linear infinite;
+            overflow: hidden;
+        }
+        
+        .indicators-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+        
+        .indicators-list li {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .indicators-list li i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .fa-exclamation-triangle {
+            color: var(--warning);
+        }
+        
+        .fa-check-circle {
+            color: var(--success);
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            height: 80px;
+            width: 80px;
+            line-height: 80px;
+            border-radius: 50%;
+            background: rgba(52, 152, 219, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .feature-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        .statistics {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 5rem 0;
+            margin: 5rem 0;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .statistics:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.05" d="M0,128L48,117.3C96,107,192,85,288,112C384,139,480,213,576,218.7C672,224,768,160,864,138.7C960,117,1056,139,1152,138.7C1248,139,1344,117,1392,106.7L1440,96L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .stat {
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s;
+        }
+        
+        .stat:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, white, #eee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .resources {
+            margin: 5rem 0;
+        }
+        
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .resource-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .resource-content {
+            padding: 2rem;
+        }
+        
+        .resource-content h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .testimonials {
+            margin: 5rem 0;
+            text-align: center;
+        }
+        
+        .testimonial-container {
+            display: flex;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            margin: 2rem 0;
+        }
+        
+        .testimonial {
+            min-width: 100%;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .testimonial-nav {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .testimonial-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ddd;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .testimonial-dot.active {
+            background: var(--secondary);
+        }
+        
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 4rem 0 2rem;
+            margin-top: 5rem;
+            position: relative;
+        }
+        
+        footer:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 20px 20px; }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .input-options {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .analysis-section {
+                padding: 2rem 1.5rem;
+            }
+        }
+        
+        /* Dark mode toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            transition: all 0.3s;
+        }
+        
+        .dark-mode-toggle:hover {
+            transform: rotate(30deg);
+        }
+        
+        /* Loading animation */
+        .loader {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(52, 152, 219, 0.2);
+            border-radius: 50%;
+            border-top: 5px solid var(--secondary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Particle background effect */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Advanced analysis visualization */
+        .analysis-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .breakdown-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .breakdown-title {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+        
+        .breakdown-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* Trust score indicator */
+        .trust-score {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            margin-left: 1rem;
+        }
+        
+        .score-high {
+            background: var(--success);
+            color: white;
+        }
+        
+        .score-medium {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .score-low {
+            background: var(--danger);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>TruthGuard</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#analysis">Analysis</a></li>
+                    <li><a href="#features">How It Works</a></li>
+                    <li><a href="#resources">Resources</a></li>
+                    <li><a href="#testimonials">Testimonials</a></li>
+                    <li><a href="#about">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Advanced Fake News Detection</h1>
+                <p>TruthGuard uses cutting-edge AI and machine learning to analyze news content, detect misinformation, and provide credibility scores in real-time.</p>
+                <div class="hero-buttons">
+                    <a href="#analysis" class="btn">Analyze Content Now</a>
+                    <a href="#features" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="analysis" class="analysis-section">
+            <h2 class="section-title">Content Analysis</h2>
+            <div class="input-area">
+                <textarea id="content-input" placeholder="Paste news article text or URL here...">Example article text: Scientists have discovered a revolutionary new energy source that will power entire cities for years with just a cup of water. The breakthrough, announced today by a team of researchers at a prestigious university, promises to solve the world's energy crisis. Major oil companies are reportedly trying to suppress the technology.</textarea>
+                <div class="input-options">
+                    <div class="option">
+                        <input type="checkbox" id="check-url">
+                        <label for="check-url">This is a URL</label>
+                    </div>
+                    <div class="option">
+                        <input type="checkbox" id="check-headlines" checked>
+                        <label for="check-headlines">Include headline analysis</label>
+                    </div>
+                    <div class="option">
+                        <input type="checkbox" id="check-sentiment" checked>
+                        <label for="check-sentiment">Include sentiment analysis</label>
+                    </div>
+                    <div class="option">
+                        <input type="checkbox" id="check-bias">
+                        <label for="check-bias">Check for political bias</label>
+                    </div>
+                </div>
+            </div>
+            <button id="analyze-btn" class="btn">Analyze Content</button>
+            <div class="loader" id="loader"></div>
+
+            <div id="results" class="results">
+                <div class="result-card">
+                    <h3>Analysis Results <span class="trust-score score-low">Low Trust</span></h3>
+                    <p>Our analysis indicates this content is <strong id="verdict">likely misleading</strong>.</p>
+                    
+                    <div class="accuracy">
+                        <p>Accuracy Confidence: <span id="accuracy-value">78%</span></p>
+                        <div class="accuracy-meter">
+                            <div id="accuracy-fill" class="accuracy-fill" style="width: 78%; background-color: #e74c3c;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="analysis-breakdown">
+                        <div class="breakdown-item">
+                            <div class="breakdown-title">Source Reliability</div>
+                            <div class="breakdown-value">32%</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-title">Language Analysis</div>
+                            <div class="breakdown-value">84%</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-title">Factual Consistency</div>
+                            <div class="breakdown-value">41%</div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="breakdown-title">Bias Detection</div>
+                            <div class="breakdown-value">67%</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Key Indicators:</h4>
+                    <ul class="indicators-list">
+                        <li><i class="fas fa-exclamation-triangle"></i> Sensationalist language detected</li>
+                        <li><i class="fas fa-exclamation-triangle"></i> Claims seem too good to be true</li>
+                        <li><i class="fas fa-exclamation-triangle"></i> Lack of specific details or names</li>
+                        <li><i class="fas fa-check-circle"></i> No grammatical errors detected</li>
+                        <li><i class="fas fa-exclamation-triangle"></i> Emotional manipulation tactics identified</li>
+                    </ul>
+                    
+                    <h4>Suggested Fact-Checks:</h4>
+                    <p>Consider verifying these claims with reputable sources like Snopes, FactCheck.org, or Reuters Fact Check.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <h2 class="section-title">How TruthGuard Works</h2>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>AI-Powered Analysis</h3>
+                <p>Our advanced machine learning models analyze content for patterns commonly found in misinformation using natural language processing and deep learning algorithms.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>Source Verification</h3>
+                <p>We cross-reference claims with reputable fact-checking databases and reliable news sources from around the world in real-time.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Credibility Scoring</h3>
+                <p>Each piece of content receives a comprehensive reliability score based on multiple trust indicators and historical accuracy data.</p>
+            </div>
+        </section>
+
+        <section class="statistics">
+            <h2 class="section-title" style="color: white;">Why Trust TruthGuard?</h2>
+            <div class="stats-container">
+                <div class="stat">
+                    <div class="stat-number">92%</div>
+                    <div class="stat-desc">Accuracy in identifying misinformation</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-desc">Articles analyzed daily</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">100+</div>
+                    <div class="stat-desc">Sources monitored</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-number">0.5s</div>
+                    <div class="stat-desc">Average analysis time</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resources" class="resources">
+            <h2 class="section-title">Educational Resources</h2>
+            <div class="resource-grid">
+                <div class="resource-card">
+                    <div class="resource-content">
+                        <h3>How to Spot Fake News</h3>
+                        <p>Learn techniques to identify misinformation, including checking sources, verifying dates, and recognizing biased language.</p>
+                        <a href="#" class="btn">Read Guide</a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-content">
+                        <h3>Fact-Checking Tools</h3>
+                        <p>A comprehensive list of reputable fact-checking organizations and tools you can use to verify information.</p>
+                        <a href="#" class="btn">Explore Tools</a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-content">
+                        <h3>Media Literacy Workshop</h3>
+                        <p>Join our free online workshops to improve your media literacy skills and become more resistant to misinformation.</p>
+                        <a href="#" class="btn">Register Now</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="testimonials" class="testimonials">
+            <h2 class="section-title">What Users Say</h2>
+            <div class="testimonial-container">
+                <div class="testimonial">
+                    <p>"TruthGuard has been invaluable for our newsroom. We've significantly reduced the chance of publishing inaccurate information."</p>
+                    <p><strong>Sarah Johnson, Editor at Daily Chronicle</strong></p>
+                </div>
+                <div class="testimonial">
+                    <p>"As a teacher, I use TruthGuard to help students develop critical thinking skills and evaluate online information responsibly."</p>
+                    <p><strong>Michael Chen, Educator</strong></p>
+                </div>
+                <div class="testimonial">
+                    <p>"This tool has helped me avoid sharing misinformation on social media. The detailed analysis is incredibly insightful."</p>
+                    <p><strong>Alex Rodriguez, Social Media User</strong></p>
+                </div>
+            </div>
+            <div class="testimonial-nav">
+                <div class="testimonial-dot active"></div>
+                <div class="testimonial-dot"></div>
+                <div class="testimonial-dot"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>TruthGuard</h3>
+                    <p>Combating misinformation through advanced AI technology and media literacy education.</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#analysis">Content Analysis</a></li>
+                        <li><a href="#features">How It Works</a></li>
+                        <li><a href="#resources">Resources</a></li>
+                        <li><a href="#testimonials">Testimonials</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Us</h3>
+                    <p>Email: info@truthguard.com</p>
+                    <p>Phone: (555) 123-4567</p>
+                    <p>Address: 123 Fact Check Street, Truthville</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 TruthGuard. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="dark-mode-toggle">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const analyzeBtn = document.getElementById('analyze-btn');
+            const resultsDiv = document.getElementById('results');
+            const accuracyFill = document.getElementById('accuracy-fill');
+            const accuracyValue = document.getElementById('accuracy-value');
+            const verdict = document.getElementById('verdict');
+            const loader = document.getElementById('loader');
+            
+            // Create particle background
+            createParticles();
+            
+            // Testimonial carousel
+            const testimonialContainer = document.querySelector('.testimonial-container');
+            const testimonials = document.querySelectorAll('.testimonial');
+            const dots = document.querySelectorAll('.testimonial-dot');
+            let currentTestimonial = 0;
+            
+            function showTestimonial(index) {
+                testimonialContainer.scrollLeft = testimonials[index].offsetLeft - testimonialContainer.offsetLeft;
+                
+                dots.forEach(dot => dot.classList.remove('active'));
+                dots[index].classList.add('active');
+                
+                currentTestimonial = index;
+            }
+            
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => showTestimonial(index));
+            });
+            
+            // Auto-rotate testimonials
+            setInterval(() => {
+                currentTestimonial = (currentTestimonial + 1) % testimonials.length;
+                showTestimonial(currentTestimonial);
+            }, 5000);
+            
+            // Analysis button functionality
+            analyzeBtn.addEventListener('click', function() {
+                // Show loading animation
+                analyzeBtn.style.display = 'none';
+                loader.style.display = 'block';
+                
+                // Simulate API call delay
+                setTimeout(function() {
+                    // Hide loader, show button again
+                    loader.style.display = 'none';
+                    analyzeBtn.style.display = 'inline-block';
+                    
+                    // Show results
+                    resultsDiv.style.display = 'block';
+                    
+                    // Randomize results for demonstration
+                    const randomAccuracy = Math.floor(Math.random() * 100);
+                    accuracyValue.textContent = randomAccuracy + '%';
+                    accuracyFill.style.width = randomAccuracy + '%';
+                    
+                    if (randomAccuracy >= 70) {
+                        verdict.textContent = 'highly suspicious';
+                        accuracyFill.style.backgroundColor = '#e74c3c';
+                        document.querySelector('.trust-score').className = 'trust-score score-low';
+                        document.querySelector('.trust-score').textContent = 'Low Trust';
+                    } else if (randomAccuracy >= 40) {
+                        verdict.textContent = 'potentially misleading';
+                        accuracyFill.style.backgroundColor = '#f39c12';
+                        document.querySelector('.trust-score').className = 'trust-score score-medium';
+                        document.querySelector('.trust-score').textContent = 'Medium Trust';
+                    } else {
+                        verdict.textContent = 'likely accurate';
+                        accuracyFill.style.backgroundColor = '#2ecc71';
+                        document.querySelector('.trust-score').className = 'trust-score score-high';
+                        document.querySelector('.trust-score').textContent = 'High Trust';
+                    }
+                    
+                    // Scroll to results
+                    resultsDiv.scrollIntoView({ behavior: 'smooth' });
+                }, 2000);
+            });
+            
+            // Dark mode toggle
+            const darkModeToggle = document.querySelector('.dark-mode-toggle');
+            darkModeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const icon = darkModeToggle.querySelector('i');
+                
+                if (document.body.classList.contains('dark-mode')) {
+                    document.body.style.backgroundColor = '#1a1a1a';
+                    document.body.style.color = '#f0f0f0';
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    document.body.style.backgroundColor = '#f5f7fa';
+                    document.body.style.color = '#333';
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+            
+            // Create particle background effect
+            function createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 30;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    // Random properties
+                    const size = Math.random() * 10 + 2;
+                    const posX = Math.random() * 100;
+                    const posY = Math.random() * 100;
+                    const delay = Math.random() * 15;
+                    const duration = Math.random() * 10 + 15;
+                    const opacity = Math.random() * 0.3 + 0.1;
+                    
+                    // Apply styles
+                    particle.style.width = `${size}px`;
+                    particle.style.height = `${size}px`;
+                    particle.style.left = `${posX}%`;
+                    particle.style.top = `${posY}%`;
+                    particle.style.animationDelay = `${delay}s`;
+                    particle.style.animationDuration = `${duration}s`;
+                    particle.style.opacity = opacity;
+                    
+                    particlesContainer.appendChild(particle);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
